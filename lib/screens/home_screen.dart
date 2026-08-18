@@ -29,7 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: ListView(
           padding: const EdgeInsets.all(8),
-          children: <Widget>[ChronoTile("Test"), ChronoTile("Cardio")],
+          children: <Widget>[ChronoTile("Test", 30), ChronoTile("Cardio", 30)],
         ),
       ),
       floatingActionButton: FloatingActionButton(
