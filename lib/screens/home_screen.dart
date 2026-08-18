@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:time_stack/widgets/chrono_list.dart';
 import 'package:time_stack/widgets/chrono_tile.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -26,17 +27,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: ListView(
-          padding: const EdgeInsets.all(8),
-          children: <Widget>[ChronoTile("Test", 30), ChronoTile("Cardio", 30)],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+      body: ChronoList(),
     );
   }
 }

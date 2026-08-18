@@ -8,7 +8,7 @@ class ChronoTile extends StatefulWidget {
   const ChronoTile(this.label, this.duration, {super.key});
 
   final String label;
-  final int duration;
+  final Duration duration;
 
   @override
   State<ChronoTile> createState() => _ChronoTile();
@@ -18,6 +18,7 @@ class _ChronoTile extends State<ChronoTile> {
   Duration timer = Duration();
   ChronoModel chrono = ChronoModel(id: "1", label: "label");
   final _stopwatch = Stopwatch();
+  late Duration _duration;
   late Duration _elapsedTime;
   late String _elapsedTimeString;
   late Timer _timer;
@@ -26,10 +27,12 @@ class _ChronoTile extends State<ChronoTile> {
   void initState() {
     super.initState();
 
-    _elapsedTime = Duration.zero;
+    _duration = widget.duration;
+
+    _elapsedTime = _duration;
     _elapsedTimeString = _formatElapsedTime(_elapsedTime);
 
-    _timer = Timer.periodic(const Duration(milliseconds: 100), (Timer timer) {
+    _timer = Timer.periodic(const Duration(milliseconds: 30), (Timer timer) {
       setState(() {
         if (_stopwatch.isRunning) {
           _updateElapsedTime();
@@ -44,9 +47,17 @@ class _ChronoTile extends State<ChronoTile> {
 
   void _updateElapsedTime() {
     setState(() {
-      _elapsedTime = _stopwatch.elapsed;
-      _elapsedTimeString = _formatElapsedTime(_elapsedTime);
+      if (!(_duration - _stopwatch.elapsed).isNegative) {
+        _elapsedTime = _duration - _stopwatch.elapsed;
+        _elapsedTimeString = _formatElapsedTime(_elapsedTime);
+      }
     });
+  }
+
+  void _timeOver() {
+    if (_elapsedTime.compareTo(Duration.zero) == 0) {
+      _startStopStopwatch();
+    }
   }
 
   void _startStopStopwatch() {
@@ -61,6 +72,7 @@ class _ChronoTile extends State<ChronoTile> {
   void _resetStopwatch() {
     _stopwatch.stop();
     _stopwatch.reset();
+    _updateElapsedTime();
   }
 
   @override
