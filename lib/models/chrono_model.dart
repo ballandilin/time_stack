@@ -1,5 +1,5 @@
 class ChronoModel {
-  String id;
+  int id;
   String label;
   Duration elapsed;
   bool isRunning;

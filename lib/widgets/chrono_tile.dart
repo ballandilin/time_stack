@@ -5,10 +5,11 @@ import 'dart:async';
 import 'package:time_stack/models/chrono_model.dart';
 
 class ChronoTile extends StatefulWidget {
-  const ChronoTile(this.label, this.duration, {super.key});
+  const ChronoTile(this.chrono, this.duration, this.removeTile, {super.key});
 
-  final String label;
+  final ChronoModel chrono;
   final Duration duration;
+  final Function removeTile;
 
   @override
   State<ChronoTile> createState() => _ChronoTile();
@@ -16,7 +17,7 @@ class ChronoTile extends StatefulWidget {
 
 class _ChronoTile extends State<ChronoTile> {
   Duration timer = Duration();
-  ChronoModel chrono = ChronoModel(id: "1", label: "label");
+
   final _stopwatch = Stopwatch();
   late Duration _duration;
   late Duration _elapsedTime;
@@ -39,6 +40,13 @@ class _ChronoTile extends State<ChronoTile> {
         }
       });
     });
+  }
+
+  @override
+  @mustCallSuper
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   String _formatElapsedTime(Duration time) {
@@ -75,6 +83,30 @@ class _ChronoTile extends State<ChronoTile> {
     _updateElapsedTime();
   }
 
+  Future<void> _dialogBuilder(BuildContext context) {
+    final labelController = TextEditingController(text: widget.chrono.label);
+
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        Duration selectedDuration = _duration;
+
+        return AlertDialog(
+          title: Text(widget.chrono.label),
+          content: Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [Text(_elapsedTime.toString().split('.')[0])],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -96,114 +128,123 @@ class _ChronoTile extends State<ChronoTile> {
           width: 1,
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header : Label + badge statut
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  widget.label,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary
-                      .withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  "en cours",
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w500,
-                    fontSize: 11,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-
-          // Timer + boutons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              InkWell(
-                onTap: () {},
-                child: Text(
-                  _elapsedTimeString,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w700,
-                    fontSize: 40,
-                    letterSpacing: 1.0,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      _resetStopwatch();
-                    },
-                    borderRadius: BorderRadius.circular(50),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Icon(
-                        Icons.refresh_rounded,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        size: 22,
-                      ),
+      child: InkWell(
+        onTap: () {
+          _dialogBuilder(context);
+          //widget.removeTile(widget.chrono.id);
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header : Label + badge statut
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.chrono.label,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  InkWell(
-                    onTap: () {
-                      _startStopStopwatch();
-                    },
-                    borderRadius: BorderRadius.circular(50),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        shape: BoxShape.circle,
-                      ),
-
-                      child: !_stopwatch.isRunning
-                          ? const Icon(
-                              Icons.play_arrow_rounded,
-                              color: Colors.white,
-                              size: 28,
-                            )
-                          : const Icon(
-                              Icons.stop_rounded,
-                              color: Colors.white,
-                              size: 28,
-                            ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary
+                        .withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    "en cours",
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w500,
+                      fontSize: 11,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
-        ],
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // Timer + boutons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                InkWell(
+                  onTap: () {},
+                  child: Text(
+                    _elapsedTimeString,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 40,
+                      letterSpacing: 1.0,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        _resetStopwatch();
+                      },
+                      borderRadius: BorderRadius.circular(50),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Icon(
+                          Icons.refresh_rounded,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          size: 22,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    InkWell(
+                      onTap: () {
+                        _startStopStopwatch();
+                      },
+                      borderRadius: BorderRadius.circular(50),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          shape: BoxShape.circle,
+                        ),
+
+                        child: !_stopwatch.isRunning
+                            ? const Icon(
+                                Icons.play_arrow_rounded,
+                                color: Colors.white,
+                                size: 28,
+                              )
+                            : const Icon(
+                                Icons.stop_rounded,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

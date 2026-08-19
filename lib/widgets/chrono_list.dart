@@ -4,13 +4,14 @@ import 'package:time_stack/widgets/chrono_tile.dart';
 
 class ChronoList extends StatefulWidget {
   const ChronoList({super.key});
+
   @override
-  _ChronoList createState() => _ChronoList();
+  State<ChronoList> createState() => _ChronoList();
 }
 
 class _ChronoList extends State<ChronoList> {
-  @override
-  late List<ChronoModel> _chronos = <ChronoModel>[];
+  final List<ChronoModel> _chronos = <ChronoModel>[];
+  late int _chronosId = 0;
 
   @override
   void initState() {
@@ -19,22 +20,34 @@ class _ChronoList extends State<ChronoList> {
 
   void _addChronoTile() {
     setState(() {
-      _chronos.add(ChronoModel(id: "0", label: "label"));
+      _chronos.add(ChronoModel(id: _chronosId, label: "label"));
+      _chronosId++;
     });
   }
 
+  void removeChronoTile(int id) {
+    setState(() {
+      _chronos.removeWhere((item) => item.id == id);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView.builder(
         padding: const EdgeInsets.all(8),
         itemCount: _chronos.length,
         itemBuilder: (BuildContext context, int index) {
-          return ChronoTile(_chronos[index].label, _chronos[index].elapsed);
+          return ChronoTile(
+            _chronos[index],
+            _chronos[index].elapsed,
+            removeChronoTile,
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addChronoTile,
-        tooltip: 'Increment',
+        tooltip: 'Add Chrono',
         child: const Icon(Icons.add),
       ),
     );
