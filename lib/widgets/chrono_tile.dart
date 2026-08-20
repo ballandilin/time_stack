@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:time_stack/models/chrono_model.dart';
+import 'package:time_stack/screens/modals/chronos_modif_modal.dart';
 
 class ChronoTile extends StatefulWidget {
   const ChronoTile(this.chrono, this.duration, this.removeTile, {super.key});
@@ -53,11 +54,28 @@ class _ChronoTile extends State<ChronoTile> {
     return time.toString().split('.')[0];
   }
 
+  bool _isPomodoro() {
+    return widget.chrono.elapsed.compareTo(Duration.zero) == 1;
+  }
+
+  void _updatePomodoro() {
+    if (!(_duration - _stopwatch.elapsed).isNegative) {
+      _elapsedTime = _duration - _stopwatch.elapsed;
+      _elapsedTimeString = _formatElapsedTime(_elapsedTime);
+    }
+  }
+
+  void _updateStopWatch() {
+    _elapsedTime = _stopwatch.elapsed;
+    _elapsedTimeString = _formatElapsedTime(_elapsedTime);
+  }
+
   void _updateElapsedTime() {
     setState(() {
-      if (!(_duration - _stopwatch.elapsed).isNegative) {
-        _elapsedTime = _duration - _stopwatch.elapsed;
-        _elapsedTimeString = _formatElapsedTime(_elapsedTime);
+      if (_isPomodoro()) {
+        _updatePomodoro();
+      } else {
+        _updateStopWatch();
       }
     });
   }
@@ -83,28 +101,10 @@ class _ChronoTile extends State<ChronoTile> {
     _updateElapsedTime();
   }
 
-  Future<void> _dialogBuilder(BuildContext context) {
-    final labelController = TextEditingController(text: widget.chrono.label);
-
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        Duration selectedDuration = _duration;
-
-        return AlertDialog(
-          title: Text(widget.chrono.label),
-          content: Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [Text(_elapsedTime.toString().split('.')[0])],
-            ),
-          ),
-        );
-      },
-    );
+  void saveChronoModif(String lbl) {
+    setState(() {
+      widget.chrono.setLabel = lbl;
+    });
   }
 
   @override
@@ -129,10 +129,13 @@ class _ChronoTile extends State<ChronoTile> {
         ),
       ),
       child: InkWell(
-        onTap: () {
-          _dialogBuilder(context);
-          //widget.removeTile(widget.chrono.id);
-        },
+        onTap: () => showDialog(
+          context: context,
+          builder: (BuildContext context) =>
+              ChronosModifModal(widget.chrono, saveChronoModif),
+          //widget.removeTile(widget.chrono.id);1
+        ),
+        onLongPress: () => widget.removeTile(widget.chrono.id),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,17 +186,14 @@ class _ChronoTile extends State<ChronoTile> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                InkWell(
-                  onTap: () {},
-                  child: Text(
-                    _elapsedTimeString,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 40,
-                      letterSpacing: 1.0,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                Text(
+                  _elapsedTimeString,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 40,
+                    letterSpacing: 1.0,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 Row(
