@@ -14,34 +14,22 @@ class ChronosModifModal extends StatefulWidget {
 }
 
 class _ChronosModifModal extends State<ChronosModifModal> {
-  final _controllerText = TextEditingController();
+  late final _controllerText = TextEditingController(text: widget.chrono.label);
 
-  late String _labelText = widget.chrono.label;
   late Duration _duration = widget.chrono.elapsed;
 
   late final _hPickerWheel = WheelPickerController(
     itemCount: 24,
-    initialIndex: _duration.inHours,
+    initialIndex: _duration.inHours % 24,
   );
   late final _mPickerWheel = WheelPickerController(
     itemCount: 60,
-    initialIndex: _duration.inMinutes,
+    initialIndex: _duration.inMinutes.remainder(60),
   );
   late final _sPickerWheel = WheelPickerController(
     itemCount: 60,
-    initialIndex: _duration.inSeconds,
+    initialIndex: _duration.inSeconds.remainder(60),
   );
-
-  void _changeValue() {
-    _labelText = _controllerText.text;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    _controllerText.addListener(_changeValue);
-  }
 
   @override
   void dispose() {
@@ -54,6 +42,7 @@ class _ChronosModifModal extends State<ChronosModifModal> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     const textStyle = TextStyle(fontSize: 26.0, height: 1.5);
     final wheelStyle = WheelPickerStyle(
       itemExtent: textStyle.fontSize! * textStyle.height!, // Text height
@@ -64,76 +53,115 @@ class _ChronosModifModal extends State<ChronosModifModal> {
     );
 
     Widget timeItemBuilder(BuildContext context, int index) {
-      return Text("$index", style: textStyle);
+      return Text(index.toString().padLeft(2, '0'), style: textStyle);
+    }
+
+    Widget buildTimeWheel(WheelPickerController controller, String label) {
+      return Expanded(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+                letterSpacing: 1.2,
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 150,
+              child: WheelPicker(
+                builder: timeItemBuilder,
+                controller: controller,
+                selectedIndexColor: scheme.primary,
+                looping: true,
+                style: wheelStyle,
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     return AlertDialog(
-      title: TextField(controller: _controllerText),
-      content: Container(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: const Text("Editing"),
+      content: SizedBox(
         width: double.infinity,
-        padding: EdgeInsets.all(20),
-        child: Center(
-          child: SizedBox(
-            width: 200.0,
-            height: 150.0,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _controllerText,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: InputDecoration(
+                labelText: 'label',
+                prefixIcon: const Icon(Icons.label_outlined),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: MediaQuery.sizeOf(context).width * 0.8,
+              height: 200,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Positioned(
+                    top: 22,
+                    child: Container(
+                      height: wheelStyle.itemExtent * 1.2,
+                      width: 240,
+                      decoration: BoxDecoration(
+                        color: scheme.primaryContainer.withValues(alpha: .35),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Expanded(
-                        child: WheelPicker(
-                          builder: timeItemBuilder,
-                          controller: _hPickerWheel,
-                          selectedIndexColor: Colors.orange,
-                          looping: true,
-                          style: wheelStyle,
-                        ),
+                      buildTimeWheel(_hPickerWheel, "Hours"),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 55),
+                        child: Text(":"),
                       ),
-                      const Text(" : ", style: textStyle),
-                      Expanded(
-                        child: WheelPicker(
-                          builder: timeItemBuilder,
-                          controller: _mPickerWheel,
-                          selectedIndexColor: Colors.orange,
-                          looping: true,
-                          style: wheelStyle,
-                        ),
+                      buildTimeWheel(_mPickerWheel, "Minutes"),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 55),
+                        child: Text(":"),
                       ),
-                      const Text(" : ", style: textStyle),
-                      Expanded(
-                        child: WheelPicker(
-                          builder: timeItemBuilder,
-                          controller: _sPickerWheel,
-                          selectedIndexColor: Colors.orange,
-                          looping: true,
-                          style: wheelStyle,
-                        ),
-                      ),
+                      buildTimeWheel(_sPickerWheel, "Seconds"),
                     ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => {
-            _duration = Duration(
-              hours: _hPickerWheel.selected,
-              minutes: _mPickerWheel.selected,
-              seconds: _sPickerWheel.selected,
+            widget.saveChronoData(
+              _controllerText.text,
+              Duration(
+                hours: _hPickerWheel.selected,
+                minutes: _mPickerWheel.selected,
+                seconds: _sPickerWheel.selected,
+              ),
             ),
-            widget.saveChronoData(_labelText, _duration),
             Navigator.pop(context),
           },
           child: const Text("Save"),
+        ),
+        TextButton(
+          onPressed: () => {Navigator.pop(context)},
+          child: const Text("Cancel"),
         ),
       ],
     );

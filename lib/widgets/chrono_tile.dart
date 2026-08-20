@@ -80,12 +80,6 @@ class _ChronoTile extends State<ChronoTile> {
     });
   }
 
-  void _timeOver() {
-    if (_elapsedTime.compareTo(Duration.zero) == 0) {
-      _startStopStopwatch();
-    }
-  }
-
   void _startStopStopwatch() {
     if (!_stopwatch.isRunning) {
       _stopwatch.start();
