@@ -12,4 +12,7 @@ class ChronoModel {
     this.isRunning = false,
     this.startTime,
   });
+
+  set setLabel(String lb) => label = lb;
+  set setElapsed(Duration elpd) => elapsed = elpd;
 }
