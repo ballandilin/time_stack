@@ -101,9 +101,12 @@ class _ChronoTile extends State<ChronoTile> {
     _updateElapsedTime();
   }
 
-  void saveChronoModif(String lbl) {
+  void saveChronoModif(String lbl, Duration dura) {
     setState(() {
+      widget.chrono.elapsed = dura;
+      _duration = dura;
       widget.chrono.setLabel = lbl;
+      _updateElapsedTime();
     });
   }
 
