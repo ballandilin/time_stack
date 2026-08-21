@@ -6,10 +6,16 @@ import 'package:time_stack/models/chrono_model.dart';
 import 'package:time_stack/screens/modals/chronos_modif_modal.dart';
 
 class ChronoTile extends StatefulWidget {
-  const ChronoTile(this.chrono, this.removeTile, {super.key});
+  const ChronoTile(
+    this.chrono,
+    this.removeTile,
+    this.updateChronoPref, {
+    super.key,
+  });
 
   final ChronoModel chrono;
   final Function removeTile;
+  final Function updateChronoPref;
 
   @override
   State<ChronoTile> createState() => _ChronoTile();
@@ -99,6 +105,7 @@ class _ChronoTile extends State<ChronoTile> {
       widget.chrono.elapsed = dura;
       _duration = dura;
       widget.chrono.setLabel = lbl;
+      widget.updateChronoPref();
       _updateElapsedTime();
     });
   }

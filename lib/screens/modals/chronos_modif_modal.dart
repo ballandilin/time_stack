@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:time_stack/models/chrono_model.dart';
 import 'package:wheel_picker/wheel_picker.dart';
 
@@ -16,7 +15,7 @@ class ChronosModifModal extends StatefulWidget {
 class _ChronosModifModal extends State<ChronosModifModal> {
   late final _controllerText = TextEditingController(text: widget.chrono.label);
 
-  late Duration _duration = widget.chrono.elapsed;
+  late final Duration _duration = widget.chrono.elapsed;
 
   late final _hPickerWheel = WheelPickerController(
     itemCount: 24,
