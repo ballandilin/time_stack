@@ -88,10 +88,14 @@ class _ChronoTile extends State<ChronoTile> {
   void _startStopStopwatch() {
     if (!_stopwatch.isRunning) {
       _stopwatch.start();
+      widget.chrono.startTime = DateTime.now();
+      widget.chrono.isRunning = true;
       _updateElapsedTime();
     } else {
+      widget.chrono.isRunning = false;
       _stopwatch.stop();
     }
+    widget.updateChronoPref();
   }
 
   void _resetStopwatch() {
