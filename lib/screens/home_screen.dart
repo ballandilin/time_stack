@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:time_stack/widgets/chrono_list.dart';
-import 'package:time_stack/widgets/chrono_tile.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -12,20 +11,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text(
+          widget.title,
+          style: Theme.of(context).textTheme.titleLarge
+              ?.copyWith(fontWeight: FontWeight.bold, letterSpacing: .5),
+        ),
+        elevation: 2,
+        scrolledUnderElevation: 4,
       ),
       body: ChronoList(),
     );

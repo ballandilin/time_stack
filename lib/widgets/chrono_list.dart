@@ -38,11 +38,7 @@ class _ChronoList extends State<ChronoList> {
         padding: const EdgeInsets.all(8),
         itemCount: _chronos.length,
         itemBuilder: (BuildContext context, int index) {
-          return ChronoTile(
-            _chronos[index],
-            _chronos[index].elapsed,
-            removeChronoTile,
-          );
+          return ChronoTile(_chronos[index], removeChronoTile);
         },
       ),
       floatingActionButton: FloatingActionButton(

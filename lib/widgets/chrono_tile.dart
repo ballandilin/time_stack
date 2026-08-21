@@ -6,10 +6,9 @@ import 'package:time_stack/models/chrono_model.dart';
 import 'package:time_stack/screens/modals/chronos_modif_modal.dart';
 
 class ChronoTile extends StatefulWidget {
-  const ChronoTile(this.chrono, this.duration, this.removeTile, {super.key});
+  const ChronoTile(this.chrono, this.removeTile, {super.key});
 
   final ChronoModel chrono;
-  final Duration duration;
   final Function removeTile;
 
   @override
@@ -29,7 +28,7 @@ class _ChronoTile extends State<ChronoTile> {
   void initState() {
     super.initState();
 
-    _duration = widget.duration;
+    _duration = widget.chrono.elapsed;
 
     _elapsedTime = _duration;
     _elapsedTimeString = _formatElapsedTime(_elapsedTime);
@@ -62,6 +61,8 @@ class _ChronoTile extends State<ChronoTile> {
     if (!(_duration - _stopwatch.elapsed).isNegative) {
       _elapsedTime = _duration - _stopwatch.elapsed;
       _elapsedTimeString = _formatElapsedTime(_elapsedTime);
+    } else {
+      _stopwatch.stop();
     }
   }
 
@@ -71,13 +72,11 @@ class _ChronoTile extends State<ChronoTile> {
   }
 
   void _updateElapsedTime() {
-    setState(() {
-      if (_isPomodoro()) {
-        _updatePomodoro();
-      } else {
-        _updateStopWatch();
-      }
-    });
+    if (_isPomodoro()) {
+      _updatePomodoro();
+    } else {
+      _updateStopWatch();
+    }
   }
 
   void _startStopStopwatch() {
@@ -150,26 +149,6 @@ class _ChronoTile extends State<ChronoTile> {
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary
-                        .withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    "en cours",
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w500,
-                      fontSize: 11,
-                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
